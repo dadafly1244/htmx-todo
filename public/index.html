@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App with HTMX</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <section class="todoapp">
+        <header class="header">
+            <h1>todos</h1>
+            <form hx-post="/todos" 
+                  hx-target="#todo-list" 
+                  hx-swap="afterbegin"
+                  hx-on::after-request="this.reset()">
+                <input class="new-todo" 
+                       name="todo" 
+                       placeholder="할일을 입력해 주세요." 
+                       autofocus>
+            </form>
+        </header>
+
+        <section class="main">
+            <ul id="todo-list" class="todo-list">
+                <!-- Todo items will be inserted here -->
+            </ul>
+        </section>
+
+        <footer class="footer">
+            <div id="todo-count" class="todo-count" 
+                    hx-get="/todo-count"
+                    hx-trigger="todosChanged from:body">
+                할일이 <strong>0</strong>개 남았습니다.
+            </div>
+            
+            <ul class="filters">
+                <li>
+                    <a href="#" 
+                       hx-get="/todos?filter=all" 
+                       hx-target="#todo-list"
+                       class="selected">전체</a>
+                </li>
+                <li>
+                    <a href="#" 
+                       hx-get="/todos?filter=active" 
+                       hx-target="#todo-list">진행중</a>
+                </li>
+                <li>
+                    <a href="#" 
+                       hx-get="/todos?filter=completed" 
+                       hx-target="#todo-list">완료</a>
+                </li>
+            </ul>
+
+            <button class="clear-completed" 
+                    hx-post="/todos/clear-completed" 
+                    hx-target="#todo-list"
+                    hx-swap="innerHTML">
+                완료 삭제
+            </button>
+        </footer>
+    </section>
+
+    <footer class="info">
+        <p>Double-click to edit a todo</p>
+        <p>Written with HTMX</p>
+    </footer>
+
+    <script>
+        // 필터 링크 클릭 시 selected 클래스 토글
+        document.querySelectorAll('.filters a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                document.querySelectorAll('.filters a').forEach(a => {
+                    a.classList.remove('selected');
+                });
+                e.target.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>
